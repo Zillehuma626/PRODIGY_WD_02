@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeTrekker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="intro-section">
+        <div class="intro-content">
+            <h1 class="intro-title">TimeTrekker</h1>
+            <p class="intro-text">Track your time with precision and style. TimeTrekker offers a sleek, modern interface to keep you on top of your tasks. Whether you're timing workouts, cooking, or just need to keep track of laps, TimeTrekker has you covered.</p>
+            <button class="intro-button">Get Started</button>
+        </div>
+    </div>
+    
+    <div class="container hidden">
+        <div class="watch">
+            <div class="outer-circle">
+                <div class="inner-circle">
+                    <span class="text minute">0 :</span>
+                    <span class="text sec">0 :</span>
+                    <span class="text msec">&nbsp;0</span>
+                </div>
+            </div>
+            <div class="button-wrapper">
+                <button class="button reset hidden">Reset</button>
+                <button class="button play">Play</button>
+                <button class="button lap hidden">Lap</button>   
+            </div>   
+            <div class="analog-clock">
+                <div class="clock-face">
+                    <div id="hour" class="hand hour-hand"></div>
+                    <div id="minute" class="hand minute-hand"></div>
+                    <div id="second" class="hand second-hand"></div>
+                </div>
+            </div>
+            <!-- Properly close the ul and place the Clear All button outside -->
+            <ul class="laps"></ul>
+            <button class="lap-clear-button hidden">Clear All</button>
+        </div>
+    </div>
+    <script>
+        document.querySelector('.intro-button').addEventListener('click', function() {
+    document.querySelector('.intro-section').classList.add('hidden'); // Hide the intro section
+    document.querySelector('.container').classList.remove('hidden'); // Show the stopwatch container
+});
+        const playButton = document.getElementsByClassName("play")[0];
+        const lapButton = document.getElementsByClassName("lap")[0];
+        const resetButton = document.getElementsByClassName("reset")[0];
+        const clearButton = document.getElementsByClassName("lap-clear-button")[0];
+        const minute = document.getElementsByClassName("minute")[0];
+        const second = document.getElementsByClassName("sec")[0];
+        const centiSecond = document.getElementsByClassName("msec")[0];
+        const laps = document.getElementsByClassName("laps")[0];
+        const bg = document.getElementsByClassName("outer-circle")[0];
+
+        let isPlay = false;
+        let isReset = false;
+        let secCounter = 0;
+        let centiCounter = 0;
+        let minCounter = 0;
+        let lapItem = 0;
+
+        let secInterval, centiSecInterval, minInterval; // Declare intervals globally
+
+        const toggleButton = () => {
+            lapButton.classList.remove("hidden");
+            resetButton.classList.remove("hidden");
+        }
+
+        const play = () => {
+            if (!isPlay) {
+                playButton.innerHTML = 'Pause';
+                bg.classList.add("animation-bg");
+
+                minInterval = setInterval(() => {
+                    if (minCounter === 60) minCounter = 0;
+                    minute.innerHTML = `${++minCounter} :`;
+                }, 60 * 1000);
+
+                secInterval = setInterval(() => {
+                    if (secCounter === 60) secCounter = 0;
+                    second.innerHTML = `&nbsp;${++secCounter} :`;
+                }, 1000);
+
+                centiSecInterval = setInterval(() => {
+                    if (centiCounter === 100) centiCounter = 0;
+                    centiSecond.innerHTML = `&nbsp;${++centiCounter}`;
+                }, 10);
+
+                isPlay = true;
+                isReset = false;
+            } else {
+                pause();
+            }
+            toggleButton();
+        }
+
+        const pause = () => {
+            playButton.innerHTML = 'Play';
+            clearInterval(minInterval);
+            clearInterval(secInterval);
+            clearInterval(centiSecInterval);
+            isPlay = false;
+            bg.classList.remove("animation-bg");
+        }
+
+        const reset = () => {
+            pause(); // Pause the stopwatch first
+            isReset = true;
+            minCounter = 0;
+            secCounter = 0;
+            centiCounter = 0;
+            second.innerHTML = '&nbsp;0 :';
+            centiSecond.innerHTML = '&nbsp;0';
+            minute.innerHTML = '0 :';
+            lapButton.classList.add("hidden");
+            resetButton.classList.add("hidden");
+            isPlay = false;
+        }
+
+        const lap = () => {
+            const li = document.createElement("li");
+            const number = document.createElement("span");
+            const timeStamp = document.createElement("span");
+
+            li.setAttribute("class", "lap-item");
+            number.setAttribute("class", "number");
+            timeStamp.setAttribute("class", "time-stamp");
+
+            number.innerText = `#${++lapItem}`;
+            timeStamp.innerHTML = `${minCounter} : ${secCounter} : ${centiCounter}`;
+
+            li.append(number, timeStamp);
+            laps.appendChild(li); // Append to ul.laps
+            laps.style.display='block'
+            clearButton.classList.remove("hidden");
+        }
+
+        const clearAll = () => {
+            laps.innerHTML = '';
+            clearButton.classList.add("hidden");
+            lapItem = 0;
+        }
+
+        playButton.addEventListener("click", play);
+        resetButton.addEventListener("click", reset);
+        lapButton.addEventListener("click", lap);
+        clearButton.addEventListener("click", clearAll);
+
+    </script>
+</body>
+</html>
